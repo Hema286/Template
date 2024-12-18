@@ -1,0 +1,42 @@
+name: Deploy HTML File
+
+on:
+  push:
+    branches:
+      - main  # Trigger the deployment on pushes to the `main` branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2  # Checkout the repository code
+
+      - name: Set up Node.js (optional)
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'  # Optional, only if you need Node.js for your project
+
+      - name: Install dependencies
+        run: npm install  # Use your package manager (npm, yarn, etc.)
+
+      - name: Build project
+        run: npm run build  # Replace with your actual build command (e.g., for Gatsby, Jekyll, etc.)
+
+      - name: Check repository status (debugging)
+        run: |
+          git status
+          git log --oneline -n 5
+          git branch -a
+          echo "Listing build folder contents:"
+          ls -alh build/  # Check if the 'build' folder exists and list its contents
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages  # The branch GitHub Pages will be deployed from
+          folder: build     # The folder containing your HTML files after building
+          force: true       # Force push to gh-pages (overwrites the history)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
